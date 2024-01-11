@@ -1,0 +1,107 @@
+on: ["push", "pull_request"]
+jobs:
+  main:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        compiler: [cl, g++, clang++]
+        build_type: [Release, Debug]
+        include:
+          - os: windows-latest
+            compiler: cl
+            compiler_flags: "/EHsc /WX /Wall /wd4061 /wd4456 /wd4458 /wd4464 /wd4514 /wd4623 /wd4625 /wd4626 /wd4710 /wd4711 /wd4820 /wd5027 /wd5045 /wd5264"
+          - os: ubuntu-latest
+            compiler: g++
+            compiler_flags: "-Werror -Wall -Weffc++ -Wextra -Wpedantic"
+          - os: ubuntu-latest
+            compiler: clang++
+            compiler_flags: "-Werror -Wall -Weffc++ -Wextra -Wpedantic"
+
+    steps:
+    - if: matrix.compiler == 'cl'
+      run: |
+        # installing conan
+        pip3 install --upgrade -- conan
+        conan profile detect
+
+    - if: matrix.compiler != 'cl'
+      run: |
+        sudo apt update --assume-yes
+        sudo apt install --assume-yes -- libboost-all-dev
+
+    - if: matrix.compiler == 'cl'
+      shell: bash
+      run: |
+        # conanfile.txt
+        cat >conanfile.txt <<EOF
+        [layout]
+        cmake_layout
+        [requires]
+        boost/[>=1.90.0]
+        [generators]
+        CMakeDeps
+        CMakeToolchain
+        EOF
+        conan install conanfile.txt --build=missing --settings:all compiler.cppstd=20 --settings:all build_type='${{ matrix.build_type }}'
+        rm --force -- conanfile.txt
+
+    - if: matrix.compiler == 'clang++'
+      run: |
+        # bump buggy clang-18 to clang-20
+        sudo rm --force -- /usr/bin/clang /usr/bin/clang++
+        sudo ln --symbolic -- clang-20 /usr/bin/clang
+        sudo ln --symbolic -- clang++-20 /usr/bin/clang++
+        sudo apt install --assume-yes -- clang-20
+
+    - uses: actions/checkout@v4
+      with:
+        path: snapshot
+
+    - shell: bash
+      run: |
+        # initializing cmake
+        if [ xclx == x'${{ matrix.compiler }}'x ]; then
+          cp -- build/generators/CMakePresets.json snapshot/
+          cmake -S snapshot -B build --preset conan-default
+        else
+          mkdir --parents -- build/.kconfig
+          echo CONFIG_HLDS_LAUNCHER=y >build/.kconfig/.config
+          cmake -S snapshot -B build -DCMAKE_CXX_COMPILER='${{ matrix.compiler }}'
+        fi
+
+    - if: matrix.compiler != 'cl'
+      run: cmake -S snapshot -B build -DCMAKE_BUILD_TYPE='${{ matrix.build_type }}'
+
+    - if: matrix.compiler_flags != ''
+      run: cmake -S snapshot -B build -DCMAKE_CXX_FLAGS='${{ matrix.compiler_flags }}'
+
+    - run: cmake --build build --config '${{ matrix.build_type }}'
+
+    - working-directory: build
+      run: ctest --output-on-failure --build-config '${{ matrix.build_type }}'
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: build-${{ matrix.compiler }}-${{ matrix.build_type }}
+        path: build
+
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        sudo apt update --assume-yes
+        sudo apt install --assume-yes python3-flake8
+
+    - uses: actions/checkout@v4
+      with:
+        path: snapshot
+
+    - working-directory: snapshot
+      run: |
+        python3 -m flake8 \
+          --statistics --show-source \
+          --exclude=./extra/lib/python3/_auxiliary/kconfig/_lib \
+          --extend-ignore=E251,E701 --max-line-length=128 -- .
