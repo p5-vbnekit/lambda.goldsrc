@@ -1,0 +1,11 @@
+config TESTS
+    bool "enable tests"
+    default "@_defaults.TESTS@"
+
+config METAMOD_PLUGIN
+    bool "enable metamod plugin"
+    default "@_defaults.METAMOD_PLUGIN@"
+
+config HLDS_LAUNCHER
+    bool "Developer: add hlds launcher target"
+    default "@_defaults.HLDS_LAUNCHER@"
