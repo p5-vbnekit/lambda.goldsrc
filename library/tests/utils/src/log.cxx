@@ -252,7 +252,16 @@ inline static ::std::string_view whole() noexcept(false) {
             if (paragraph_.empty()) continue;
             list_.emplace_back(paragraph_);
         }
+#if defined(__GNUC__) && (13 > __GNUC__) && (! defined (__clang__))
+// suppress false positive warning
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wrestrict"
+#endif
         return ::boost::algorithm::join(list_, "\n");
+#if defined(__GNUC__) && (13 > __GNUC__) && (! defined (__clang__))
+// suppress false positive warning
+#pragma GCC diagnostic pop
+#endif
     } ();
     return {instance_};
 }
@@ -581,7 +590,7 @@ BOOST_AUTO_TEST_CASE(write_case) {
         BOOST_CHECK_EQUAL(
             ::std::decay_t<decltype(
                 ::this_::utils::location::state().line
-            )>::No > ::this_::utils::location::state().line ? 564 : 0,
+            )>::No > ::this_::utils::location::state().line ? 573 : 0,
             expected_location_.line
         );
         BOOST_CHECK_EQUAL(

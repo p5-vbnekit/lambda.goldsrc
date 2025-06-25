@@ -51,7 +51,16 @@ inline static ::std::string make_tag(
     if (plugin && (0 != *plugin)) buffer_.emplace_back(plugin);
     auto const * const level_ = this_::message::level::to_string(level);
     if (level_ && (0 != level_)) buffer_.emplace_back(level_);
+#if defined(__GNUC__) && (13 > __GNUC__) && (! defined (__clang__))
+// suppress false positive warning
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wrestrict"
+#endif
     return ::boost::algorithm::join(::std::move(buffer_), "|");
+#if defined(__GNUC__) && (13 > __GNUC__) && (! defined (__clang__))
+// suppress false positive warning
+#pragma GCC diagnostic pop
+#endif
 }
 
 inline static auto compile_text(

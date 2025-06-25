@@ -22,7 +22,16 @@ inline static auto update_ld_library_path() noexcept(false) {
         return pointer_;
     } ();
     if (value_.empty()) {
+#if defined(__GNUC__) && (13 > __GNUC__) && (! defined (__clang__))
+// suppress false positive warning
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wrestrict"
+#endif
         value_ = ".";
+#if defined(__GNUC__) && (13 > __GNUC__) && (! defined (__clang__))
+// suppress false positive warning
+#pragma GCC diagnostic pop
+#endif
         ::setenv("LD_LIBRARY_PATH", value_.c_str(), 1);
     }
     else {
