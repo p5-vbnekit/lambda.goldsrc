@@ -177,7 +177,7 @@ inline static auto make(
 }
 
 inline static auto & fix_column(
-    Type &value,
+    Type &value, ::std::decay_t<decltype(state().column)> const &mode,
     ::std::decay_t<decltype(::std::declval<Type>().column)> absolute,
     ::std::decay_t<decltype(::std::declval<Type>().column)> relative = 0,
     bool double_colon_at_begin = true
@@ -187,29 +187,37 @@ inline static auto & fix_column(
     if (! (static_cast<
         ::std::decay_t<decltype(absolute)>
     >(double_colon_at_begin ? 2 : 0) < absolute)) return value;
-    auto const &state_ = state().column;
-    switch(state_) {
+    switch(mode) {
     default:
         value.column = 0;
         break;
-    case ::std::decay_t<decltype(state_)>::Full: break;
-    case ::std::decay_t<decltype(state_)>::Absolute:
+    case ::std::decay_t<decltype(mode)>::Full: break;
+    case ::std::decay_t<decltype(mode)>::Absolute:
         if (double_colon_at_begin) {
             if (1 < value.column) value.column -= 2;
             else value.column = 0;
         }
         break;
-    case ::std::decay_t<decltype(state_)>::Relative:
+    case ::std::decay_t<decltype(mode)>::Relative:
         absolute -= relative;
         if (absolute <= value.column) value.column -= absolute;
         else value.column = 0;
         break;
-    case ::std::decay_t<decltype(state_)>::Parentheses:
+    case ::std::decay_t<decltype(mode)>::Parentheses:
         if (absolute <= value.column) value.column -= absolute;
         else value.column = 0;
         break;
     }
     return value;
+}
+
+inline static auto & fix_column(
+    Type &value,
+    ::std::decay_t<decltype(::std::declval<Type>().column)> absolute,
+    ::std::decay_t<decltype(::std::declval<Type>().column)> relative = 0,
+    bool double_colon_at_begin = true
+) noexcept(true) {
+    return fix_column(value, state().column, absolute, relative, double_colon_at_begin);
 }
 
 } // namespace location
@@ -590,7 +598,7 @@ BOOST_AUTO_TEST_CASE(write_case) {
         BOOST_CHECK_EQUAL(
             ::std::decay_t<decltype(
                 ::this_::utils::location::state().line
-            )>::No > ::this_::utils::location::state().line ? 573 : 0,
+            )>::No > ::this_::utils::location::state().line ? 581 : 0,
             expected_location_.line
         );
         BOOST_CHECK_EQUAL(
@@ -641,8 +649,11 @@ BOOST_AUTO_TEST_CASE(write_case) {
                 auto const &expected_ = expected_location_;
                 BOOST_TEST_INFO("Location = " << expected_.to_string());
                 check_location_(expected_, ::this_::utils::location::fix_column(
-                    *(tester_.buffer->location), column_fix_.absolute,
-                    column_fix_.relative, false
+                    *(tester_.buffer->location),
+#if defined(__clang_major__) && (19 < __clang_major__)
+                    ::std::decay_t<decltype(::this_::utils::location::state().column)>::Relative,
+#endif
+                    column_fix_.absolute, column_fix_.relative, false
                 ));
             };
             while (! expected_speech_.empty()) {

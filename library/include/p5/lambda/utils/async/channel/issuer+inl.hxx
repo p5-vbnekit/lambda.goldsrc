@@ -62,17 +62,19 @@ auto this_::Type<T>::dispatch(Event const &event) const noexcept(true) {
     return driver_ && driver_->dispatch(&event);
 }
 
+#if (! defined(__clang_major__)) || (18 != __clang_major__)
 template <class T> inline
 auto this_::Type<T>::dispatch(auto &&event) const noexcept(
     ::std::is_nothrow_constructible_v<Event, decltype(event)>
 ) requires(! ::std::is_base_of_v<
-    this_::Event<T>, ::std::decay_t<decltype(event)>
+    this_::Event<T>, ::std::decay_t<decltype(event)> // clang-18 crash reason
 >) {
     auto const &driver_ = this_::Base::driver_;
     if (! driver_) return false;
     auto const event_ = Event{::std::forward<decltype(event)>(event)};
     return driver_->dispatch(&event_);
 }
+#endif
 
 template <class T> inline
 auto this_::Type<T>::subscribe(auto &&handler) const noexcept(false) {

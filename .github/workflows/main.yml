@@ -48,6 +48,14 @@ jobs:
         conan install conanfile.txt --build=missing --settings:all compiler.cppstd=20 --settings:all build_type='${{ matrix.build_type }}'
         rm --force -- conanfile.txt
 
+    - if: matrix.compiler == 'clang++'
+      run: |
+        # bump buggy clang-18 to clang-20
+        sudo rm --force -- /usr/bin/clang /usr/bin/clang++
+        sudo ln --symbolic -- clang-20 /usr/bin/clang
+        sudo ln --symbolic -- clang++-20 /usr/bin/clang++
+        sudo apt install --assume-yes -- clang-20
+
     - uses: actions/checkout@v4
       with:
         path: snapshot

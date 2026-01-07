@@ -35,8 +35,8 @@ private:
         ::std::optional<parent_::future::Issuer<void>> future{::std::nullopt};
         bool suspended{false};
         ::std::size_t
-#if (defined(__clang_major__) && (15 > __clang_major__))
-            volatile
+#if (defined(__clang_major__) && ((15 > __clang_major__) || ((17 < __clang_major__) && (21 > __clang_major__))))
+            volatile // work around clang optimizer bug
 #endif
         references{0};
     } state_ = {};
@@ -75,8 +75,8 @@ private:
         ::std::optional<parent_::future::Issuer<T>> future{::std::nullopt};
         bool suspended{false};
         ::std::size_t
-#if (defined(__clang_major__) && (15 > __clang_major__))
-            volatile
+#if (defined(__clang_major__) && ((15 > __clang_major__) || ((17 < __clang_major__) && (21 > __clang_major__))))
+            volatile // work around clang optimizer bug
 #endif
         references{0};
     } state_ = {};

@@ -86,11 +86,14 @@ template <class T> struct Type final: this_::Base {
     auto const & front() const noexcept(true);
 
     auto dispatch(Event const &) const noexcept(true);
+
+#if (! defined(__clang_major__)) || (18 != __clang_major__)
     auto dispatch(auto &&event) const noexcept(
         ::std::is_nothrow_constructible_v<Event, decltype(event)>
     ) requires(! ::std::is_base_of_v<
-        this_::Event<T>, ::std::decay_t<decltype(event)>
+        this_::Event<T>, ::std::decay_t<decltype(event)> // clang-18 crash reason
     >);
+#endif
 
     auto subscribe(auto &&) const noexcept(false);
 
