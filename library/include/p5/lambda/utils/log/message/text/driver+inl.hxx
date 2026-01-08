@@ -4,6 +4,8 @@
 #include <utility>
 #include <variant>
 #include <sstream>
+#include <iterator>
+#include <concepts>
 #include <type_traits>
 
 #include "chunk.hxx"
@@ -18,37 +20,15 @@ namespace this_ = private_;
 
 template <class T> inline constexpr static
 auto ensure_chunk_(T &&source) noexcept(true) requires(::std::is_base_of_v<
-    parent_::parent_::Chunk, ::std::decay_t<T>
-> || requires () {
-    parent_::parent_::chunk::make(::std::declval<T>());
-}) {
+    parent_::Chunk, ::std::decay_t<T>
+> || requires() {{
+    parent_::parent_::chunk::make(::std::declval<T>())
+} -> ::std::same_as<parent_::Chunk>; }) {
     if constexpr (
-        ::std::is_base_of_v<parent_::parent_::Chunk, ::std::decay_t<T>>
+        ::std::is_base_of_v<parent_::Chunk, ::std::decay_t<T>>
     ) return ::std::forward<T>(source);
     else return parent_::parent_::chunk::make(::std::forward<T>(source));
 }
-
-namespace introspection_ {
-
-namespace parent_ = this_;
-namespace this_ = introspection_;
-
-namespace sfinae {
-
-namespace parent_ = this_;
-namespace this_ = sfinae;
-
-template <class, class = void> struct EnsureChunk final: ::std::false_type {};
-template <class T> struct EnsureChunk<T, ::std::void_t<
-    decltype(parent_::parent_::ensure_chunk_(::std::declval<T>()))
->> final: ::std::true_type {};
-
-template <class T> inline constexpr static auto ensure_chunk() noexcept(true) {
-    return this_::EnsureChunk<T>::value;
-}
-
-} // namespace sfinae
-} // namespace introspection_
 
 template <class T> inline static auto to_string_(T &&value) noexcept(false) {
     if constexpr (requires() {
@@ -62,10 +42,10 @@ template <class T> inline static auto to_string_(T &&value) noexcept(false) {
 }
 
 template <class T> inline constexpr static
-auto make_delegate_(T &&source) noexcept(false) {
-    if constexpr (
-        this_::introspection_::sfinae::ensure_chunk<T>()
-    ) return [done_ = false, holder_ = [&source] {
+auto make_delegate(T &&source) noexcept(false) {
+    if constexpr (requires () {{
+        this_::ensure_chunk_(::std::declval<T>())
+    } -> ::std::same_as<parent_::Chunk>; }) return [done_ = false, holder_ = [&source] {
         if constexpr (::std::is_base_of_v<::std::string, T>) {
             struct Result_ final {
                 parent_::Chunk value;
@@ -94,11 +74,11 @@ auto make_delegate_(T &&source) noexcept(false) {
         ::std::decay_t<decltype(::std::end(source))> const sentinel;
     };
         struct Result_ final {
-        ::std::variant<
-            ::std::monostate, State_, ::std::nullptr_t
-        > state = {};
-        T source;
-    };
+            ::std::variant<
+                ::std::monostate, State_, ::std::nullptr_t
+            > state = {};
+            T source;
+        };
         return Result_{.source = ::std::forward<T>(source)};
     } ()] () mutable -> parent_::Chunk const * {
         using State_ = ::std::decay_t<decltype(::std::get<1>(context_.state))>;
@@ -187,7 +167,7 @@ this_::Type<T> & this_::Type<T>::operator = (Type &&other) noexcept(true) {
 }
 
 template <class T> auto make(T &&source) noexcept(false) {
-    auto &&source_ = this_::private_::make_delegate_(::std::forward<T>(source));
+    auto &&source_ = this_::private_::make_delegate(::std::forward<T>(source));
     return this_::Type<::std::decay_t<decltype(source_)>>{::std::move(source_)};
 }
 

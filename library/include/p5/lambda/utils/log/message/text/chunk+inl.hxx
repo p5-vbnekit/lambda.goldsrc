@@ -47,7 +47,7 @@ make(T && ... source) noexcept(true) requires([] {
             ::std::tuple_element_t<0, ::std::tuple<T ...>>
         >>) return false;
     }
-    return requires () { private_::make(::std::declval<T>() ...); };
+    return requires () { this_::private_::make(::std::declval<T>() ...); };
 } ()) {
     return this_::private_::make(::std::forward<T>(source) ...);
 }

@@ -24,11 +24,8 @@ BOOST_AUTO_TEST_CASE(function_case) {
         switch (state_.index()) {
         default: break;
         case 0:
-            if (size_ > first_) {
-                state_.emplace<1>(first_);
-                return &(::std::get<1>(state_));
-            }
-            state_.emplace<2>(nullptr);
+            state_.emplace<1>(first_);
+            return &(::std::get<1>(state_));
             break;
         case 1:
             if constexpr (true) {

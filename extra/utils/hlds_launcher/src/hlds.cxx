@@ -26,14 +26,14 @@ inline static auto update_ld_library_path() noexcept(false) {
         ::setenv("LD_LIBRARY_PATH", value_.c_str(), 1);
     }
     else {
-        ::std::list<::std::string> items_;
+        auto items_ = ::std::list<::std::string>{};
         auto const splitted_ = ::boost::split(
             items_, value_, ::boost::is_any_of(":")
         );
         auto const sentinel_ = ::std::end(splitted_);
         auto const iterator_ = ::std::find(
             ::std::begin(splitted_), sentinel_, "."
-            );
+        );
         if (sentinel_ == iterator_) {
             value_ = ".:" + value_;
             ::setenv("LD_LIBRARY_PATH", value_.c_str(), 1);

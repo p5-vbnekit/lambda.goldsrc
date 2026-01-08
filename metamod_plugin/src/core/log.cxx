@@ -112,7 +112,7 @@ void this_::Type::write_(Interface::Message &&message) const noexcept(true) {
             sink_(&plugin_, "%s", text_.c_str());
             return;
         }
-        if (! (this_::private_::debug_mode() || ::std::decay_t<
+        if constexpr (! this_::private_::debug_mode()) if (! (::std::decay_t<
             decltype(message.level)
         >::Debug > message.level)) return;
         auto &&tag_ = this_::private_::make_tag(

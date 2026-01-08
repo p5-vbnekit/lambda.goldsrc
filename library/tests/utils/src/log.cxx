@@ -27,7 +27,7 @@ namespace target = ::p5::lambda::utils;
 
 template <class Type, class ... T> inline constexpr static
 auto make_array(T && ... source) noexcept(true) {
-    return ::std::array<Type, sizeof ... (T)>{::std::forward<T>(source) ...};
+    return ::std::array<Type, sizeof ... (T)>{{::std::forward<T>(source) ...}};
 }
 
 namespace location {
