@@ -40,7 +40,7 @@ jobs:
         [layout]
         cmake_layout
         [requires]
-        boost/[>=1.85.0]
+        boost/[>=1.90.0]
         [generators]
         CMakeDeps
         CMakeToolchain
