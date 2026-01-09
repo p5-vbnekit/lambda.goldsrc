@@ -22,7 +22,14 @@ template <class T> inline constexpr static
 auto ensure_chunk_(T &&source) noexcept(true) requires(::std::is_base_of_v<
     parent_::Chunk, ::std::decay_t<T>
 > || requires() {{
+#ifdef _MSC_VER
+    parent_::parent_::chunk::private_::make(::std::declval<T>())
+#else
+    // `cl.exe` can't handle this reqiurement correctly.
+    // instead of checking requirements of `chunk::make` function,
+    // it raises an error as if it were instantinating `chunk::make`.
     parent_::parent_::chunk::make(::std::declval<T>())
+#endif
 } -> ::std::same_as<parent_::Chunk>; }) {
     if constexpr (
         ::std::is_base_of_v<parent_::Chunk, ::std::decay_t<T>>
