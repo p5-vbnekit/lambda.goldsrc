@@ -292,7 +292,14 @@ inline static auto random_split() noexcept(false) {
         auto const end_ = ::std::end(data);
         do {
             auto const begin_ = ::std::begin(data);
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4365)
+#endif
             auto const iterator_ = make_random_size_() + begin_;
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
             co_yield Value_{begin_, iterator_};
             data = Value_{iterator_, end_};
         } while (! data.empty());
@@ -598,7 +605,7 @@ BOOST_AUTO_TEST_CASE(write_case) {
         BOOST_CHECK_EQUAL(
             ::std::decay_t<decltype(
                 ::this_::utils::location::state().line
-            )>::No > ::this_::utils::location::state().line ? 581 : 0,
+            )>::No > ::this_::utils::location::state().line ? 588 : 0,
             expected_location_.line
         );
         BOOST_CHECK_EQUAL(

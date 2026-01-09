@@ -119,6 +119,10 @@ BOOST_AUTO_TEST_CASE(main_case) {
     BOOST_CHECK(! exceptions_.empty());
     if (exceptions_.empty()) return;
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4702)
+#endif
     auto const check_current_ = [&exceptions_] (
         ::std::string_view const &expected
     ) {
@@ -139,6 +143,9 @@ BOOST_AUTO_TEST_CASE(main_case) {
         }
         throw ::std::logic_error{"unexpected state"};
     };
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
     BOOST_CHECK_NO_THROW(check_current_("Gordon"));
 

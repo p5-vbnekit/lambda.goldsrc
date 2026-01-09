@@ -228,6 +228,10 @@ inline void * this_::Driver::get() const noexcept(true) {
     return context_.pointer->get();
 }
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4702)
+#endif
 inline void * this_::Driver::get_or_throw() const noexcept(false) {
     if (context_.exception) {
         ::std::rethrow_exception(context_.exception);
@@ -240,6 +244,9 @@ inline void * this_::Driver::get_or_throw() const noexcept(false) {
     };
     return context_.pointer->get();
 }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 inline this_::Driver::State this_::Driver::state() const noexcept(true) {
     if (context_.cancelled) return State::Cancelled;
