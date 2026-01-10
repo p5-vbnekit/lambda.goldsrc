@@ -35,7 +35,7 @@ private:
 
 public:
     Type() noexcept(true) = default;
-    Type(::std::decay_t<decltype(coroutine_)> const &) noexcept(false);
+    Type(::std::decay_t<decltype(coroutine_)>) noexcept(false);
 
     Type(Type &&) noexcept(true);
     Type(Type const &) noexcept(true);

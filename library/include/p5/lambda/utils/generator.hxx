@@ -183,7 +183,7 @@ template <class T> struct Type final {
         ::std::default_sentinel_t const &
     ) const noexcept(true);
 
-    constexpr explicit Type(Handle_<T> const &coroutine) noexcept(true);
+    constexpr explicit Type(Handle_<T> coroutine) noexcept(true);
 
 private:
     Handle_<T> coroutine_;
@@ -202,7 +202,7 @@ template <class T> struct Type final:
     constexpr auto end() const noexcept(true);
     constexpr auto begin() const noexcept(true);
 
-    constexpr explicit Type(Handle_<T> const &coroutine) noexcept(true);
+    constexpr explicit Type(Handle_<T> coroutine) noexcept(true);
 
     ~Type() noexcept(true);
     constexpr Type() noexcept(true) = default;

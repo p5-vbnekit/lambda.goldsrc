@@ -269,7 +269,7 @@ this_::Type<T>::operator == (
 }
 
 template <class T> inline constexpr
-this_::Type<T>::Type(parent_::Handle_<T> const &coroutine) noexcept(true):
+this_::Type<T>::Type(parent_::Handle_<T> coroutine) noexcept(true):
     coroutine_{coroutine}
 {
     if (! coroutine_) return;
@@ -293,7 +293,7 @@ auto this_::Type<T>::begin() const noexcept(true) {
 }
 
 template <class T> inline constexpr this_::Type<T>::Type(
-    this_::Handle_<T> const &coroutine
+    this_::Handle_<T> coroutine
 ) noexcept(true): coroutine_{coroutine} {}
 
 template <class T> inline this_::Type<T>::Type::~Type() noexcept(true) {

@@ -146,11 +146,11 @@ BOOST_AUTO_TEST_CASE(future_case) {
 
                 inline constexpr static auto initial_suspend() noexcept(true) {
                     return ::std::suspend_never{};
-                };
+                }
 
                 inline constexpr static auto final_suspend() noexcept(true) {
                     return ::std::suspend_always{};
-                };
+                }
 
                 inline auto return_value(Value_ &value) noexcept(true) {
                     pointer_ = &value;
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(future_case) {
             inline ~Result_() noexcept(true) { handle_.destroy(); }
 
             inline Result_(
-                ::std::coroutine_handle<promise_type> const &handle
+                ::std::coroutine_handle<promise_type> handle
             ) noexcept(true): handle_{handle} {}
 
         private:

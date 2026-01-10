@@ -140,7 +140,7 @@ auto this_::Type<T>::operator co_await() const noexcept(true) {
         }
 
         inline auto await_suspend(
-            ::std::coroutine_handle<> const &coroutine
+            ::std::coroutine_handle<> coroutine
         ) const noexcept(false) {
             if (context_.subscription) throw parent_::exceptions::BadState{};
             if (context_.instance) throw parent_::exceptions::BadState{};

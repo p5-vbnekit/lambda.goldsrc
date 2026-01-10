@@ -85,7 +85,7 @@ template <class T> inline auto this_::Type<T>::start() const noexcept(true) {
 }
 
 template <class T> inline this_::Type<T>::Type(
-    ::std::decay_t<decltype(coroutine_)> const &coroutine
+    ::std::decay_t<decltype(coroutine_)> coroutine
 ) noexcept(false): future_{}, coroutine_{coroutine} {
     using Bad_ = ::std::invalid_argument;
     if (! coroutine) throw Bad_{"bad coroutine"};

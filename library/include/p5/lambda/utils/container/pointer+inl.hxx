@@ -126,7 +126,7 @@ auto this_::Type<Interface>::operator co_await() const noexcept(true) {
         }
 
         inline auto await_suspend(
-            ::std::coroutine_handle<> const &coroutine
+            ::std::coroutine_handle<> coroutine
         ) const noexcept(false) {
             if (context_.subscription) throw ::std::logic_error{"bad state"};
             if (await_ready()) {

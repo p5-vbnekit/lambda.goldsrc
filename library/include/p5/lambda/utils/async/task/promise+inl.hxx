@@ -35,7 +35,7 @@ auto final_suspend() noexcept(true) {
         }
 
         inline auto await_suspend(
-            typename Policy::Coroutine const &coroutine
+            typename Policy::Coroutine coroutine
         ) noexcept(true) {
             if (::std::exchange(suspended_, true)) return false;
             if (! coroutine) return false;
@@ -73,7 +73,7 @@ auto initial_suspend() noexcept(true) {
         }
 
         inline auto await_suspend(
-            Coroutine_ const &coroutine
+            Coroutine_ coroutine
         ) noexcept(true) {
             if (coroutine_) return;
             coroutine_.emplace(nullptr);
@@ -185,7 +185,7 @@ auto await_transform(auto &&awaitable) noexcept(false) {
                 }
 
                 inline static auto await_suspend(
-                    ChildCoroutine_ const &coroutine
+                    ChildCoroutine_ coroutine
                 ) noexcept(true) { return coroutine.promise().context_.parent; }
 
                 inline constexpr static auto await_resume() noexcept(true) {}
@@ -226,7 +226,7 @@ auto await_transform(auto &&awaitable) noexcept(false) {
             return false;
         }
 
-        inline auto await_suspend(Coroutine_ const &coroutine) noexcept(false) {
+        inline auto await_suspend(Coroutine_ coroutine) noexcept(false) {
             if (
                 (! coroutine) || coroutine.done()
             ) throw ::std::invalid_argument{"bad coroutine"};
@@ -305,7 +305,7 @@ auto await_transform(auto &&awaitable) noexcept(false) {
         ChildCoroutine_ coroutine;
 
         inline ChildTask_(
-            ChildCoroutine_ const &coroutine
+            ChildCoroutine_ coroutine
         ) noexcept(true): coroutine{coroutine} {}
     };
 
